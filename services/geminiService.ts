@@ -4,9 +4,9 @@ import { QuizQuestion } from '../types';
 const getAI = () => {
   const apiKey = process.env.API_KEY;
   if (!apiKey) {
-    console.error("API_KEY is missing from environment variables.");
+    console.error("GeminiService: process.env.API_KEY is undefined. Environment variables found:", Object.keys(process.env));
     // We let the SDK throw the error, or throw one ourselves to be clear
-    throw new Error("API_KEY is missing. Please set it in your environment variables.");
+    throw new Error("API_KEY is missing. Please set it in your environment variables (e.g., VITE_API_KEY in Railway).");
   }
   return new GoogleGenAI({ apiKey });
 };
@@ -78,7 +78,7 @@ export const generateQuizFromText = async (textContext: string, numQuestions: nu
     console.error("Gemini Quiz Generation Error:", error);
     // Return a readable error message to the UI
     if (error.message?.includes("API_KEY")) {
-      throw new Error("API Key is missing. Check your Railway settings.");
+      throw new Error("API Key is missing. Please ensure VITE_API_KEY is set in Railway settings.");
     }
     if (error.status === 403) {
       throw new Error("API Key is invalid or has no quota.");
