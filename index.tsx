@@ -4,10 +4,20 @@ import App from './App';
 import { pdfjs } from 'react-pdf';
 
 // CRITICAL FIX: Polyfill 'process' for browser environments (Vite/Railway)
-// This prevents "ReferenceError: process is not defined" when accessing process.env.API_KEY
-if (typeof window !== 'undefined' && !window.process) {
+// We are injecting the API key here as requested to ensure it is available at runtime.
+if (typeof window !== 'undefined') {
   // @ts-ignore
-  window.process = { env: {} };
+  if (!window.process) {
+    // @ts-ignore
+    window.process = { env: {} };
+  }
+  // @ts-ignore
+  if (!window.process.env) {
+    // @ts-ignore
+    window.process.env = {};
+  }
+  // @ts-ignore
+  window.process.env.API_KEY = 'AIzaSyBFEuNrTdoo5e4l2h4cZML5jEXUBrZH5Ww';
 }
 
 // Configure PDF.js worker
