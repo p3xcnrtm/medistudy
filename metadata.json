@@ -1,0 +1,5 @@
+{
+  "name": "MediStudy AI",
+  "description": "A smart PDF-based study companion for medical students featuring course organization, intelligent notes, and AI-generated quizzes.",
+  "requestFramePermissions": []
+}
