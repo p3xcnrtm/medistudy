@@ -1,20 +1,24 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { QuizQuestion } from '../types';
 
-// We initialize inside the function or lazily to ensure 'process' polyfills from index.tsx have run
-// and to prevent the app from crashing immediately if the key is missing on startup.
 const getAI = () => {
-  // process.env.API_KEY is injected by the environment
-  return new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) {
+    console.error("API_KEY is missing from environment variables.");
+    // We let the SDK throw the error, or throw one ourselves to be clear
+    throw new Error("API_KEY is missing. Please set it in your environment variables.");
+  }
+  return new GoogleGenAI({ apiKey });
 };
 
 export const generateQuizFromText = async (textContext: string, numQuestions: number = 5): Promise<QuizQuestion[]> => {
   try {
     const ai = getAI();
-    const model = 'gemini-2.5-flash';
+    // Using the latest Gemini 3 Flash Preview as recommended for text tasks
+    const model = 'gemini-3-flash-preview'; 
     
-    // Schema definition for the quiz output
-    const responseSchema = {
+    // Explicitly typed Schema
+    const responseSchema: Schema = {
       type: Type.ARRAY,
       items: {
         type: Type.OBJECT,
@@ -24,31 +28,28 @@ export const generateQuizFromText = async (textContext: string, numQuestions: nu
           options: {
             type: Type.ARRAY,
             items: { type: Type.STRING },
-            description: "A list of 4 possible answers."
           },
           correctAnswer: { 
             type: Type.INTEGER,
-            description: "The index (0-3) of the correct answer in the options array."
+            description: "The index (0-3) of the correct answer."
           },
           explanation: { type: Type.STRING }
         },
-        required: ["id", "question", "options", "correctAnswer", "explanation"],
+        required: ["question", "options", "correctAnswer", "explanation"],
       },
     };
 
     const prompt = `
-      You are a strict medical professor creating an exam for medical students.
-      Based on the provided text content from a medical textbook/paper, generate ${numQuestions} high-quality, difficult multiple-choice questions (MCQs).
+      You are a strict medical professor creating an exam.
+      Based on the provided text, generate ${numQuestions} multiple-choice questions (MCQs).
       
       Requirements:
-      1. Questions must be relevant to the text provided.
-      2. Provide 4 options for each question.
-      3. Clearly mark the correct answer index (0-3).
-      4. Provide a short clinical explanation for the correct answer.
+      1. Provide 4 options for each question.
+      2. The 'correctAnswer' must be the index (0, 1, 2, or 3).
+      3. Include a clinical explanation.
       
       Source Text:
-      "${textContext.substring(0, 15000)}" 
-      // Truncating to avoid massive token usage in this demo, though Flash handles large context well.
+      "${textContext.substring(0, 20000)}"
     `;
 
     const response = await ai.models.generateContent({
@@ -57,19 +58,31 @@ export const generateQuizFromText = async (textContext: string, numQuestions: nu
       config: {
         responseMimeType: "application/json",
         responseSchema: responseSchema,
-        temperature: 0.3, // Lower temperature for more factual accuracy
+        temperature: 0.2, // Low temperature for consistent formatting
       },
     });
 
     if (response.text) {
       const quizData = JSON.parse(response.text) as QuizQuestion[];
-      // Ensure IDs are unique numbers if the model hallucinates
-      return quizData.map((q, idx) => ({ ...q, id: idx + 1 }));
+      // Sanitize and ensure IDs
+      return quizData.map((q, idx) => ({ 
+        ...q, 
+        id: idx + 1,
+        // Ensure correctAnswer is a number
+        correctAnswer: Number(q.correctAnswer)
+      }));
     } else {
-      throw new Error("No response text generated");
+      throw new Error("Model returned empty response.");
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Gemini Quiz Generation Error:", error);
-    throw error;
+    // Return a readable error message to the UI
+    if (error.message?.includes("API_KEY")) {
+      throw new Error("API Key is missing. Check your Railway settings.");
+    }
+    if (error.status === 403) {
+      throw new Error("API Key is invalid or has no quota.");
+    }
+    throw new Error(error.message || "Failed to generate quiz.");
   }
 };

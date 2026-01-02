@@ -190,9 +190,9 @@ const PDFReader: React.FC<PDFReaderProps> = ({ pdfId }) => {
       addQuiz(newQuiz);
       navigate({ type: 'QUIZ', quizId: newQuiz.id, mode: 'TAKE' });
       
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      alert("Failed to generate quiz. Please try again.");
+      alert(`Error: ${e.message}`);
     } finally {
       setIsGeneratingQuiz(false);
     }
