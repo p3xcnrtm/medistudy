@@ -4,7 +4,7 @@ import Sidebar from './components/Sidebar';
 import PDFReader from './components/PDFReader';
 import QuizView from './components/QuizView';
 import { Course, PDFDocument } from './types';
-import { UploadCloud, FileText, Trash2, BookOpen, Search, Presentation } from 'lucide-react';
+import { UploadCloud, FileText, Trash2, BookOpen, Presentation, Menu, BrainCircuit } from 'lucide-react';
 
 // Safe UUID generator
 const generateId = () => {
@@ -24,55 +24,57 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
-      <header className="mb-10">
-        <h1 className="text-3xl font-bold text-slate-900">Welcome back, Dr. Student</h1>
-        <p className="text-slate-500 mt-2">You have {documents.length} documents organized.</p>
-      </header>
+    <div className="flex-1 overflow-y-auto">
+      <div className="p-4 md:p-8 max-w-6xl mx-auto">
+        <header className="mb-6 md:mb-10 mt-4 md:mt-0">
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Welcome back, Dr. Student</h1>
+          <p className="text-slate-500 mt-2">You have {documents.length} documents organized.</p>
+        </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        <div className="bg-gradient-to-br from-medical-500 to-medical-600 rounded-2xl p-6 text-white shadow-lg">
-          <h3 className="font-semibold text-medical-100">Study Streak</h3>
-          <div className="text-4xl font-bold mt-2">12 Days</div>
-          <div className="mt-4 text-sm text-medical-100 bg-white/10 w-fit px-3 py-1 rounded-full">Top 10%</div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-10">
+          <div className="bg-gradient-to-br from-medical-500 to-medical-600 rounded-2xl p-6 text-white shadow-lg">
+            <h3 className="font-semibold text-medical-100">Study Streak</h3>
+            <div className="text-4xl font-bold mt-2">12 Days</div>
+            <div className="mt-4 text-sm text-medical-100 bg-white/10 w-fit px-3 py-1 rounded-full">Top 10%</div>
+          </div>
+          <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+            <h3 className="font-semibold text-slate-500">Documents</h3>
+            <div className="text-4xl font-bold mt-2 text-slate-800">{documents.length}</div>
+            <div className="mt-4 text-sm text-green-600 bg-green-50 w-fit px-3 py-1 rounded-full">+2 this week</div>
+          </div>
+          <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+             <h3 className="font-semibold text-slate-500">Quizzes Taken</h3>
+             <div className="text-4xl font-bold mt-2 text-slate-800">0</div>
+             <div className="mt-4 text-sm text-orange-600 bg-orange-50 w-fit px-3 py-1 rounded-full">Needs focus</div>
+          </div>
         </div>
-        <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
-          <h3 className="font-semibold text-slate-500">Documents</h3>
-          <div className="text-4xl font-bold mt-2 text-slate-800">{documents.length}</div>
-          <div className="mt-4 text-sm text-green-600 bg-green-50 w-fit px-3 py-1 rounded-full">+2 this week</div>
-        </div>
-        <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
-           <h3 className="font-semibold text-slate-500">Quizzes Taken</h3>
-           <div className="text-4xl font-bold mt-2 text-slate-800">0</div>
-           <div className="mt-4 text-sm text-orange-600 bg-orange-50 w-fit px-3 py-1 rounded-full">Needs focus</div>
-        </div>
-      </div>
 
-      <h2 className="text-xl font-bold text-slate-800 mb-6">Recent Uploads</h2>
-      {recentDocs.length === 0 ? (
-        <div className="text-center py-12 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
-           <p className="text-slate-400">No documents yet. Upload one to start.</p>
-        </div>
-      ) : (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          {recentDocs.map((doc) => (
-            <div key={doc.id} className="flex items-center justify-between p-4 border-b last:border-0 border-slate-100 hover:bg-slate-50 transition-colors">
-              <div className="flex items-center gap-4">
-                <div className={`p-2 rounded-lg ${doc.fileType === 'pptx' ? 'bg-orange-50 text-orange-500' : 'bg-red-50 text-red-500'}`}>
-                  {getIcon(doc.fileType)}
+        <h2 className="text-xl font-bold text-slate-800 mb-6">Recent Uploads</h2>
+        {recentDocs.length === 0 ? (
+          <div className="text-center py-12 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+             <p className="text-slate-400">No documents yet. Upload one to start.</p>
+          </div>
+        ) : (
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            {recentDocs.map((doc) => (
+              <div key={doc.id} className="flex items-center justify-between p-4 border-b last:border-0 border-slate-100 hover:bg-slate-50 transition-colors">
+                <div className="flex items-center gap-4 overflow-hidden">
+                  <div className={`p-2 rounded-lg shrink-0 ${doc.fileType === 'pptx' ? 'bg-orange-50 text-orange-500' : 'bg-red-50 text-red-500'}`}>
+                    {getIcon(doc.fileType)}
+                  </div>
+                  <div className="min-w-0">
+                    <h4 onClick={() => navigate({ type: 'READER', pdfId: doc.id })} className="font-semibold text-slate-800 cursor-pointer hover:text-medical-600 truncate">{doc.name}</h4>
+                    <p className="text-xs text-slate-500 truncate">{doc.course} • Added {new Date(doc.addedAt).toLocaleDateString()}</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 onClick={() => navigate({ type: 'READER', pdfId: doc.id })} className="font-semibold text-slate-800 cursor-pointer hover:text-medical-600">{doc.name}</h4>
-                  <p className="text-xs text-slate-500">{doc.course} • Added {new Date(doc.addedAt).toLocaleDateString()}</p>
-                </div>
+                <button onClick={() => deleteDocument(doc.id)} className="text-slate-400 hover:text-red-500 p-2 shrink-0">
+                  <Trash2 size={18} />
+                </button>
               </div>
-              <button onClick={() => deleteDocument(doc.id)} className="text-slate-400 hover:text-red-500 p-2">
-                <Trash2 size={18} />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
@@ -104,49 +106,51 @@ const CourseView: React.FC<{ course: Course }> = ({ course }) => {
   };
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-           <h1 className="text-3xl font-bold text-slate-900">{course}</h1>
-           <p className="text-slate-500 mt-2">{courseDocs.length} Documents</p>
+    <div className="flex-1 overflow-y-auto">
+      <div className="p-4 md:p-8 max-w-5xl mx-auto">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 mt-4 md:mt-0">
+          <div>
+             <h1 className="text-2xl md:text-3xl font-bold text-slate-900">{course}</h1>
+             <p className="text-slate-500 mt-2">{courseDocs.length} Documents</p>
+          </div>
+          <label className="flex items-center justify-center gap-2 bg-medical-600 text-white px-4 py-3 md:py-2 rounded-xl hover:bg-medical-700 cursor-pointer transition-all shadow-md hover:shadow-lg w-full md:w-auto">
+            <UploadCloud size={20} />
+            <span>Upload PDF/PPTX</span>
+            <input type="file" accept=".pdf,.pptx" className="hidden" onChange={handleFileUpload} />
+          </label>
         </div>
-        <label className="flex items-center gap-2 bg-medical-600 text-white px-4 py-2 rounded-xl hover:bg-medical-700 cursor-pointer transition-all shadow-md hover:shadow-lg">
-          <UploadCloud size={20} />
-          <span>Upload PDF/PPTX</span>
-          <input type="file" accept=".pdf,.pptx" className="hidden" onChange={handleFileUpload} />
-        </label>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {courseDocs.map(doc => (
-          <div key={doc.id} className="group bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all p-4 flex flex-col">
-            <div className="flex-1 flex flex-col items-center justify-center py-8 bg-slate-50 rounded-lg mb-4 cursor-pointer" onClick={() => navigate({ type: 'READER', pdfId: doc.id })}>
-              {doc.fileType === 'pptx' ? (
-                <Presentation size={48} className="text-slate-300 group-hover:text-orange-500 transition-colors" />
-              ) : (
-                <FileText size={48} className="text-slate-300 group-hover:text-red-500 transition-colors" />
-              )}
-            </div>
-            <div className="flex items-start justify-between">
-              <div onClick={() => navigate({ type: 'READER', pdfId: doc.id })} className="cursor-pointer">
-                <h3 className="font-semibold text-slate-800 line-clamp-1 hover:text-medical-600">{doc.name}</h3>
-                <p className="text-xs text-slate-500 mt-1">
-                   {doc.fileType.toUpperCase()} • Added today
-                </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {courseDocs.map(doc => (
+            <div key={doc.id} className="group bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all p-4 flex flex-col">
+              <div className="flex-1 flex flex-col items-center justify-center py-8 bg-slate-50 rounded-lg mb-4 cursor-pointer" onClick={() => navigate({ type: 'READER', pdfId: doc.id })}>
+                {doc.fileType === 'pptx' ? (
+                  <Presentation size={48} className="text-slate-300 group-hover:text-orange-500 transition-colors" />
+                ) : (
+                  <FileText size={48} className="text-slate-300 group-hover:text-red-500 transition-colors" />
+                )}
               </div>
-              <button onClick={() => deleteDocument(doc.id)} className="text-slate-300 hover:text-red-500">
-                <Trash2 size={16} />
-              </button>
+              <div className="flex items-start justify-between">
+                <div onClick={() => navigate({ type: 'READER', pdfId: doc.id })} className="cursor-pointer min-w-0">
+                  <h3 className="font-semibold text-slate-800 line-clamp-1 hover:text-medical-600 break-all">{doc.name}</h3>
+                  <p className="text-xs text-slate-500 mt-1">
+                     {doc.fileType.toUpperCase()} • Added today
+                  </p>
+                </div>
+                <button onClick={() => deleteDocument(doc.id)} className="text-slate-300 hover:text-red-500 shrink-0 ml-2">
+                  <Trash2 size={16} />
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
-        {courseDocs.length === 0 && (
-          <div className="col-span-full py-20 text-center border-2 border-dashed border-slate-200 rounded-xl bg-slate-50">
-             <BookOpen size={48} className="mx-auto text-slate-300 mb-4" />
-             <h3 className="text-lg font-medium text-slate-600">No files here yet</h3>
-             <p className="text-slate-400">Upload your course PDFs or PPTX slides to start studying.</p>
-          </div>
-        )}
+          ))}
+          {courseDocs.length === 0 && (
+            <div className="col-span-full py-20 text-center border-2 border-dashed border-slate-200 rounded-xl bg-slate-50">
+               <BookOpen size={48} className="mx-auto text-slate-300 mb-4" />
+               <h3 className="text-lg font-medium text-slate-600">No files here yet</h3>
+               <p className="text-slate-400">Upload your course PDFs or PPTX slides to start studying.</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -165,11 +169,45 @@ const MainContent: React.FC = () => {
 };
 
 const App: React.FC = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   return (
     <AppProvider>
-      <div className="flex h-screen w-screen bg-slate-50">
-        <Sidebar />
-        <main className="flex-1 overflow-y-auto">
+      <div className="flex h-screen w-screen bg-slate-50 overflow-hidden">
+        {/* Mobile Sidebar Overlay */}
+        {isMobileMenuOpen && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+        )}
+
+        {/* Sidebar */}
+        <div className={`
+          fixed md:static inset-y-0 left-0 z-50 w-64 bg-white transform transition-transform duration-200 ease-in-out
+          ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        `}>
+          <Sidebar onClose={() => setIsMobileMenuOpen(false)} />
+        </div>
+
+        {/* Main Layout */}
+        <main className="flex-1 flex flex-col w-full h-full relative overflow-hidden">
+          {/* Mobile Header */}
+          <div className="md:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 shrink-0 z-30">
+             <div className="flex items-center gap-3">
+               <button 
+                 onClick={() => setIsMobileMenuOpen(true)}
+                 className="p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg"
+               >
+                 <Menu size={24} />
+               </button>
+               <div className="flex items-center gap-2 text-medical-600">
+                  <BrainCircuit size={24} />
+                  <span className="font-bold text-lg text-slate-800">MediStudy</span>
+               </div>
+             </div>
+          </div>
+
           <MainContent />
         </main>
       </div>

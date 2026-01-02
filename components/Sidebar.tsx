@@ -2,7 +2,6 @@ import React from 'react';
 import { useAppStore } from '../store';
 import { Course } from '../types';
 import { 
-  BookOpen, 
   LayoutDashboard, 
   FileText, 
   Microscope, 
@@ -10,11 +9,21 @@ import {
   Droplet, 
   Bug, 
   Pill,
-  BrainCircuit
+  BrainCircuit,
+  X
 } from 'lucide-react';
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+  onClose?: () => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   const { navigate, view, documents } = useAppStore();
+
+  const handleNavigation = (action: () => void) => {
+    action();
+    if (onClose) onClose();
+  };
 
   const getIconForCourse = (course: Course) => {
     switch (course) {
@@ -36,18 +45,27 @@ const Sidebar: React.FC = () => {
   const getDocCount = (course: Course) => documents.filter(d => d.course === course).length;
 
   return (
-    <div className="w-64 bg-white border-r border-slate-200 h-full flex flex-col shadow-sm">
-      <div className="p-6 flex items-center gap-3 border-b border-slate-100">
-        <div className="bg-medical-600 p-2 rounded-lg text-white">
-          <BrainCircuit size={24} />
+    <div className="w-full md:w-64 bg-white border-r border-slate-200 h-full flex flex-col shadow-xl md:shadow-sm">
+      <div className="p-6 flex items-center justify-between border-b border-slate-100">
+        <div className="flex items-center gap-3">
+          <div className="bg-medical-600 p-2 rounded-lg text-white">
+            <BrainCircuit size={24} />
+          </div>
+          <h1 className="font-bold text-xl text-slate-800 tracking-tight">MediStudy AI</h1>
         </div>
-        <h1 className="font-bold text-xl text-slate-800 tracking-tight">MediStudy AI</h1>
+        {/* Mobile Close Button */}
+        <button 
+          onClick={onClose} 
+          className="md:hidden p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg"
+        >
+          <X size={20} />
+        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto py-4">
         <div className="px-4 mb-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">Overview</div>
         <button 
-          onClick={() => navigate({ type: 'DASHBOARD' })}
+          onClick={() => handleNavigation(() => navigate({ type: 'DASHBOARD' }))}
           className={`w-full flex items-center gap-3 px-6 py-3 text-sm font-medium transition-colors ${
             isActive('DASHBOARD') 
               ? 'text-medical-600 bg-medical-50 border-r-4 border-medical-600' 
@@ -63,19 +81,19 @@ const Sidebar: React.FC = () => {
         {Object.values(Course).map((course) => (
           <button
             key={course}
-            onClick={() => navigate({ type: 'COURSE', course })}
+            onClick={() => handleNavigation(() => navigate({ type: 'COURSE', course }))}
             className={`w-full flex items-center justify-between px-6 py-3 text-sm font-medium transition-colors ${
               isActive(course)
                 ? 'text-medical-600 bg-medical-50 border-r-4 border-medical-600'
                 : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
             }`}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 overflow-hidden">
               {getIconForCourse(course)}
               <span className="truncate max-w-[120px]">{course}</span>
             </div>
             {getDocCount(course) > 0 && (
-              <span className="bg-slate-100 text-slate-500 text-xs px-2 py-0.5 rounded-full">
+              <span className="bg-slate-100 text-slate-500 text-xs px-2 py-0.5 rounded-full shrink-0">
                 {getDocCount(course)}
               </span>
             )}

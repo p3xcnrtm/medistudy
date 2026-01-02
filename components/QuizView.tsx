@@ -64,9 +64,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quizId }) => {
     // Calculate final score if this was the last question step
     let finalScore = score;
     // Note: If we just clicked "Next" on the last question, score is already updated.
-    // However, if time ran out, we need to handle that.
     
-    // For simplicity in this logic flow:
     const percentage = Math.round((finalScore / quiz.questions.length) * 100);
     updateQuizScore(quizId, percentage);
   };
@@ -80,7 +78,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quizId }) => {
   if (isFinished) {
     const percentage = Math.round((score / quiz.questions.length) * 100);
     return (
-      <div className="h-full flex flex-col items-center justify-center bg-slate-50 p-6">
+      <div className="h-full flex flex-col items-center justify-center bg-slate-50 p-6 overflow-y-auto">
         <div className="bg-white p-8 rounded-2xl shadow-xl text-center max-w-md w-full">
           <div className="w-20 h-20 bg-medical-100 rounded-full flex items-center justify-center mx-auto mb-6 text-medical-600">
             <Award size={40} />
@@ -114,21 +112,21 @@ const QuizView: React.FC<QuizViewProps> = ({ quizId }) => {
   }
 
   return (
-    <div className="h-full bg-slate-50 flex flex-col max-w-4xl mx-auto p-6">
+    <div className="h-full bg-slate-50 flex flex-col max-w-4xl mx-auto p-4 md:p-6 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-4 md:mb-8 shrink-0">
         <div>
-          <h2 className="text-xl font-bold text-slate-800">Quiz Mode</h2>
-          <p className="text-slate-500 text-sm">{document?.name}</p>
+          <h2 className="text-lg md:text-xl font-bold text-slate-800">Quiz Mode</h2>
+          <p className="text-slate-500 text-xs md:text-sm truncate max-w-[200px] md:max-w-none">{document?.name}</p>
         </div>
-        <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm border border-slate-200 text-slate-600 font-mono">
-          <Clock size={18} />
+        <div className="flex items-center gap-2 bg-white px-3 py-1.5 md:px-4 md:py-2 rounded-full shadow-sm border border-slate-200 text-slate-600 font-mono text-sm">
+          <Clock size={16} />
           {formatTime(timeLeft)}
         </div>
       </div>
 
       {/* Progress Bar */}
-      <div className="w-full bg-slate-200 h-2 rounded-full mb-8">
+      <div className="w-full bg-slate-200 h-2 rounded-full mb-6 shrink-0">
         <div 
           className="bg-medical-500 h-2 rounded-full transition-all duration-300"
           style={{ width: `${((currentQuestionIdx) / quiz.questions.length) * 100}%` }}
@@ -136,11 +134,11 @@ const QuizView: React.FC<QuizViewProps> = ({ quizId }) => {
       </div>
 
       {/* Question Card */}
-      <div className="bg-white rounded-2xl shadow-lg p-8 flex-1 overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 flex-1 overflow-y-auto">
         <span className="text-xs font-bold text-medical-600 bg-medical-50 px-2 py-1 rounded-md uppercase tracking-wide">
           Question {currentQuestionIdx + 1} of {quiz.questions.length}
         </span>
-        <h3 className="text-2xl font-semibold text-slate-900 mt-4 mb-8 leading-relaxed">
+        <h3 className="text-xl md:text-2xl font-semibold text-slate-900 mt-4 mb-6 md:mb-8 leading-relaxed">
           {currentQuestion.question}
         </h3>
 
@@ -168,7 +166,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quizId }) => {
                   {isAnswered && idx === currentQuestion.correctAnswer && <CheckCircle size={14} />}
                   {isAnswered && idx === selectedOption && idx !== currentQuestion.correctAnswer && <XCircle size={14} className="text-red-500" />}
                 </div>
-                <span className="text-lg">{option}</span>
+                <span className="text-base md:text-lg">{option}</span>
               </button>
             );
           })}
@@ -177,11 +175,11 @@ const QuizView: React.FC<QuizViewProps> = ({ quizId }) => {
         {isAnswered && (
           <div className="mt-8 bg-slate-50 border border-slate-200 p-6 rounded-xl animate-in fade-in slide-in-from-bottom-2">
             <h4 className="font-bold text-slate-800 mb-2">Explanation</h4>
-            <p className="text-slate-600 leading-relaxed">{currentQuestion.explanation}</p>
+            <p className="text-slate-600 leading-relaxed text-sm md:text-base">{currentQuestion.explanation}</p>
             <div className="mt-6 flex justify-end">
               <button 
                 onClick={nextQuestion}
-                className="bg-medical-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-medical-700 flex items-center gap-2"
+                className="bg-medical-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-medical-700 flex items-center gap-2 text-sm md:text-base"
               >
                 {currentQuestionIdx === quiz.questions.length - 1 ? "Finish Quiz" : "Next Question"}
                 <ArrowRight size={20} />
@@ -195,7 +193,7 @@ const QuizView: React.FC<QuizViewProps> = ({ quizId }) => {
             <button 
               onClick={submitAnswer}
               disabled={selectedOption === null}
-              className="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm md:text-base"
             >
               Submit Answer
             </button>

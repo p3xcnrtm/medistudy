@@ -4,7 +4,8 @@ import App from './App';
 import { pdfjs } from 'react-pdf';
 
 // CRITICAL FIX: Polyfill 'process' for browser environments (Vite/Railway)
-// We are injecting the API key here as requested to ensure it is available at runtime.
+// We ensure 'process.env' exists so the app doesn't crash when accessing it.
+// The actual API_KEY should be provided by the build environment (Railway).
 if (typeof window !== 'undefined') {
   // @ts-ignore
   if (!window.process) {
@@ -16,8 +17,6 @@ if (typeof window !== 'undefined') {
     // @ts-ignore
     window.process.env = {};
   }
-  // @ts-ignore
-  window.process.env.API_KEY = 'AIzaSyBFEuNrTdoo5e4l2h4cZML5jEXUBrZH5Ww';
 }
 
 // Configure PDF.js worker
