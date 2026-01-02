@@ -1,12 +1,16 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { QuizQuestion } from '../types';
 
-// Initialize the API client
-// Note: process.env.API_KEY is injected by the environment
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// We initialize inside the function or lazily to ensure 'process' polyfills from index.tsx have run
+// and to prevent the app from crashing immediately if the key is missing on startup.
+const getAI = () => {
+  // process.env.API_KEY is injected by the environment
+  return new GoogleGenAI({ apiKey: process.env.API_KEY });
+};
 
 export const generateQuizFromText = async (textContext: string, numQuestions: number = 5): Promise<QuizQuestion[]> => {
   try {
+    const ai = getAI();
     const model = 'gemini-2.5-flash';
     
     // Schema definition for the quiz output

@@ -3,14 +3,25 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { pdfjs } from 'react-pdf';
 
+// CRITICAL FIX: Polyfill 'process' for browser environments (Vite/Railway)
+// This prevents "ReferenceError: process is not defined" when accessing process.env.API_KEY
+if (typeof window !== 'undefined' && !window.process) {
+  // @ts-ignore
+  window.process = { env: {} };
+}
+
 // Configure PDF.js worker
 // Modern pdfjs-dist versions (v4+) use .mjs for the worker in the build directory.
 // We must point to the .mjs file to avoid 404s and "Failed to fetch dynamically imported module" errors.
-if (pdfjs.version) {
-  pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
-} else {
-  // Fallback to a known compatible version if version detection fails
-  pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs`;
+try {
+  if (pdfjs.version) {
+    pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+  } else {
+    // Fallback to a known compatible version if version detection fails
+    pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs`;
+  }
+} catch (e) {
+  console.warn("PDF Worker initialization warning:", e);
 }
 
 const rootElement = document.getElementById('root');
